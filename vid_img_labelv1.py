@@ -1,80 +1,41 @@
-
 # coding: utf-8
-
-# In[ ]:
-
-
-import numpy as np
-import cv2
 import scipy.io
 import os
+from contextlib import closing
+from videosequence import VideoSequence
 
-label_path="C:\\justin\\Videos_MERL_Shopping_Dataset\\Labels_MERL_Shopping_Dataset\\Labels_MERL_Shopping_Dataset\\"
-label_file = open("label.list", "a")
-output_path='C:\\justin\\Videos_MERL_Shopping_Dataset\\Data\\'
-input_video_path='C:\\justin\\Videos_MERL_Shopping_Dataset\\Videos_MERL_Shopping_Dataset\\'
-label_folder=os.listdir('C:\\justin\\Videos_MERL_Shopping_Dataset\\Labels_MERL_Shopping_Dataset\\Labels_MERL_Shopping_Dataset\\')
-video_folder=os.listdir('C:\\justin\\Videos_MERL_Shopping_Dataset\\Videos_MERL_Shopping_Dataset')
-print(label_folder[105])
+BASE = ".."
+LABEL = "Labels_MERL_Shopping_Dataset"
+VIDEO = "Videos_MERL_Shopping_Dataset"
+OUTPUT = "output"
+LIST = "list"
 
-
-# In[ ]:
-
-
-i=0
-for i in  range(0,len(label_folder)-1):
-    input_video_file_name=video_folder[i]
-    input_label_file_name=label_folder[i]
-    print (input_video_file_name,input_label_file_name)
-    getstartstop(input_video_file_name,input_label_file_name)
-    i+=1
+def get_full_path(filename, seed="", ext=""):
+    return "{}/{}/{}{}".format(BASE, seed, filename, ext)
 
 
-# In[ ]:
+def main():
+    with open(get_full_path(LIST, "train", ".list")) as train_file, open(get_full_path(LIST, "test", ".list")) as test_file:
+        for idx, label_name in enumerate(os.listdir(get_full_path(LABEL))):
+            item, _ = label_name.split("label")
+            video_clip_name = "{}_crop".format(item)
+            target_file = train_file
+            if idx % 4 == 0:
+                target_file = test_file
+            getstartstop(video_clip_name, label_name, target_file)
 
 
-def getstartstop(input_video_file_name,input_label_file_name):
-    input_label_file=label_path+input_label_file_name
+def getstartstop(input_video_file_name, input_label_file_name, list_file):
+    input_label_file = get_full_path(LABEL, input_label_file_name, ".mat")
     data = scipy.io.loadmat(input_label_file)
-    for key, value in data.items():
-        if key =='tlabs':
-            d=np.array(value)
-            tag=0
-            while(tag<5):
-                y=0
-                j=0
-                startstop_pos=[]
-                while(y<len(d[tag][0])):
-                    start,stop=d[tag][0][y]
-                    vid2frame(input_video_file_name,start,stop,tag,y)
-                    label_file.write(output_path+input_video_file+"_"+format(tag)+"_"+format(y)+" " + format(tag)+"/n")
-                    y+=1
-                tag+=1
-    return
-
-
-# In[ ]:
-
-
-def vid2frame(input_video_file_name,start,stop,tag,y):
-    
-    input_video_file=input_video_path+input_video_file_name
-    #output_path='C:\\justin\\Videos_MERL_Shopping_Dataset\\Data\\'
-    output_folder=output_path+input_video_file_name[:-4]+"_"+format(tag)+"_"+format(y)
-    os.mkdir(output_folder)
-    vidcap = cv2.VideoCapture(input_video_file)
-    success,image = vidcap.read()
-    count = 0
-    success = True
-    while success:
-        success,image = vidcap.read()
-        if count>=start and count<=stop:
-            filename=output_folder+"\\%d.jpg"%count
-            print (filename)
-            cv2.imwrite(filename, image)     # save frame as JPEG file
-            
-        count+=1
-    
-    vidcap.release()
-    return
-
+    video_file = get_full_path(VIDEO, input_video_file_name, ".mp4")
+    with closing(VideoSequence(video_file)) as frames:
+        for fidx, frame in enumerate(frames):
+            for clss, action_list in enumurate(data['tlabs']):
+                os.mkdir(get_full_path(OUTPUT, clss))
+                for action in action_list:
+                    if action[0] <= fidx <= action[1]:
+                        file_name = "{}_{}_{}".format(clss, input_video_file_name, fidx)
+                        file_path = get_full_path(OUTPUT, clss, file_name)
+                        frame.save("{}.jpg".format(file_path)
+                        target_file.write("{} {}".format(list_file, clss))
