@@ -27,7 +27,7 @@ import numpy as np
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
-cpu_num = 2
+cpu_num = 4
 #flags.DEFINE_float('learning_rate', 0.0, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 5000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 10, 'Batch size.')
