@@ -4,7 +4,7 @@ import os
 from contextlib import closing
 from videosequence import VideoSequence
 
-BASE = ".."
+BASE = "."
 LABEL = "Labels_MERL_Shopping_Dataset"
 VIDEO = "Videos_MERL_Shopping_Dataset"
 OUTPUT = "output"
