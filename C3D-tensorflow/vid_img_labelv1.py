@@ -36,16 +36,17 @@ def getstartstop(input_video_file_name, input_label_file_name, list_file):
     while cap.isOpened():
             ret, frame = cap.read()
             for clss, action_list in enumerate(data['tlabs']):
-                try:
-                    os.makedirs(get_full_path("{}/{}/{}".format(OUTPUT, clss, input_video_file_name)))
-                except Exception:
-                    pass
-                for action in action_list[0]:
+                for action_item_no, action in enumerate(action_list[0]):
+                    try:
+                        os.makedirs(get_full_path("{}/{}/{}/{}/".format(OUTPUT, clss, input_video_file_name, action_item_no)))
+                    except Exception:
+                        pass
                     if action[0] <= fidx <= action[1]:
-                        file_name = "{}_{}_{}".format(clss, input_video_file_name, fidx)
-                        file_path = get_full_path("{}/{}/{}".format(OUTPUT, clss, input_video_file_name), file_name)
-                        cv2.imwrite("{}.jpg".format(file_path), frame)
-                        file_path = get_full_path("{}/{}".format(OUTPUT, clss), input_video_file_name)
+                        file_name = "{}_{}_{}_{}".format(clss, input_video_file_name, action_item_no, fidx)
+                        file_path = get_full_path("{}/{}/{}/{}".format(OUTPUT, clss, input_video_file_name, action_item_no), file_name)
+                        resize = cv2.resize(image, (320, 240), interpolation = cv2.INTER_LINEAR)
+                        cv2.imwrite("{}.jpg".format(file_path), resize)
+                        file_path = get_full_path("{}/{}/{}".format(OUTPUT, clss, input_video_file_name), action_item_no)
                         list_file.write("{} {}\n".format(file_path, clss))
             fidx += 1
             if not ret:

@@ -85,7 +85,7 @@ def read_clip_and_label(filename, batch_size, start_pos=-1, num_frames_per_clip=
           img = np.array(cv2.resize(np.array(img),(crop_size, int(img.height * scale + 1)))).astype(np.float32)
         crop_x = int((img.shape[0] - crop_size)/2)
         crop_y = int((img.shape[1] - crop_size)/2)
-        img = img[crop_x:crop_x+crop_size, crop_y:crop_y+crop_size,:]
+        img = img[crop_x:crop_x+crop_size, crop_y:crop_y+crop_size,:]/255
         # - np_mean[j]
         #img = tf.image.per_image_standardization(img)
         img_datas.append(img)
