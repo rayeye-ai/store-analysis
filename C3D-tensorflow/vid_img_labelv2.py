@@ -52,13 +52,13 @@ import scipy.io
 import os
 import cv2
 import time
-import math
 
 BASE = "."
 LABEL = "Labels_MERL_Shopping_Dataset"
 VIDEO = "Videos_MERL_Shopping_Dataset"
 OUTPUT = "output"
 LIST = "list"
+
 
 def get_full_path(seed, filename="", ext=""):
     return "{}/{}/{}{}".format(BASE, seed, filename, ext)
@@ -67,24 +67,17 @@ def get_full_path(seed, filename="", ext=""):
 def main():
     with open(get_full_path(LIST, "train", ".list"), "w") as train_file:
         with open(get_full_path(LIST, "test", ".list"), "w") as test_file:
-          final_dict = {
-            0: [],
-            1: [],
-            2: [],
-            3: [],
-            4: []
-          }
-      		for idx, label_name in enumerate(os.listdir(get_full_path(LABEL))):
-      		    item, _ = label_name.split("label")
-      		    target_file = train_file
-      		    if idx % 4 == 0:
-      	         target_file = test_file
-      		    getstorage(label_name, target_file)
+            for idx, label_name in enumerate(os.listdir(get_full_path(LABEL))):
+                item, _ = label_name.split("label")
+                target_file = train_file
+                if idx % 4 == 0:
+                 target_file = test_file
+                getstorage(label_name, target_file)
     cv2.destroyAllWindows()
 
 
 def getstorage(label_name, target_file):
-  input_label_file = get_full_path(LABEL, input_label_file_name)
+  input_label_file = get_full_path(LABEL, label_name)
   data = scipy.io.loadmat(input_label_file)
   for clss, dummy in enumerate(data['tlabs']):
     for action_list in dummy:
@@ -99,8 +92,7 @@ def perform_splits_sam(action_list):
   for action in action_list:
     start = action[0]
     end = action[1]
-    for frame in range(start, end + 1):
-      frame_list.append(frame)
+    frame_list = [frame for frame in xrange(start, end)]
     all_frame_list = [frame_list[i:i + n] for i in xrange(0, len(frame_list), 64)]
   for fl in all_frame_list:
     res.append([fl[0], fl[-1]])
@@ -117,14 +109,14 @@ def perform_sub_sam(action_list):
       if len(frame_list)/2 <= 16:
         break
       f_list = frame_list[0::2]
-      if len(frame_list)%2 = 0:
+      if len(frame_list)%2 == 0:
         f_list = f_list + frame_list[-1]
       frame_list = f_list
     sampled_frames_list.append(frame_list)
   return sampled_frames_list
 
 
-def write_to_files(clss, sampled_frames_list, label_name, target_file)
+def write_to_files(clss, sampled_frames_list, label_name, target_file):
   input_video_file_name = "{}crop".format(label_name)
   input_label_file = get_full_path(LABEL, label_name)
   video_file = get_full_path(VIDEO, input_video_file_name, ".mp4")
