@@ -107,7 +107,7 @@ def perform_sub_sam(action_list):
     while True:
       if len(frame_list)/2 < 16:
         drop_out_list = []
-	for idx, fram in enumerate(frame_list):
+        for idx, fram in enumerate(frame_list):
           if len(drop_out_list) + 16 <= len(frame_list):
             if idx%2 == 0:
               drop_out_list.append(fram)

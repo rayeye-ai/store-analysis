@@ -29,7 +29,7 @@ import numpy as np
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
-cpu_num = 3
+cpu_num = 4
 flags.DEFINE_integer('batch_size', 10 , 'Batch size.')
 FLAGS = flags.FLAGS
 
