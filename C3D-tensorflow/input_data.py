@@ -38,7 +38,8 @@ def get_frames_data(filename, num_frames_per_clip=16):
       return [], s_index
     filenames = sorted(filenames)
     s_index = 0
-    for i in range(s_index, s_index + num_frames_per_clip):
+    e_index = num_frames_per_clip
+    for i in range(s_index, e_index):
       image_name = str(filename) + '/' + str(filenames[i])
       img = Image.open(image_name)
       img_data = np.array(img)

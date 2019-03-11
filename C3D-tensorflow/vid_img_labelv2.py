@@ -68,7 +68,6 @@ def main():
     with open(get_full_path(LIST, "train", ".list"), "w") as train_file:
         with open(get_full_path(LIST, "test", ".list"), "w") as test_file:
             for idx, label_name in enumerate(os.listdir(get_full_path(LABEL))):
-                item, _ = label_name.split("label")
                 target_file = train_file
                 if idx % 4 == 0:
                  target_file = test_file
@@ -93,9 +92,9 @@ def perform_splits_sam(action_list):
     start = action[0]
     end = action[1]
     frame_list = [frame for frame in xrange(start, end)]
-    all_frame_list = [frame_list[i:i + n] for i in xrange(0, len(frame_list), 64)]
-  for fl in all_frame_list:
-    res.append([fl[0], fl[-1]])
+    all_frame_list = [frame_list[i:i + 64] for i in xrange(0, len(frame_list), 64)]
+    for fl in all_frame_list:
+      res.append([fl[0], fl[-1]])
   return res
 
 
@@ -106,18 +105,28 @@ def perform_sub_sam(action_list):
     end = action[1]
     frame_list = [frame for frame in xrange(start, end)]
     while True:
-      if len(frame_list)/2 <= 16:
+      if len(frame_list)/2 < 16:
+        drop_out_list = []
+	for idx, fram in enumerate(frame_list):
+          if len(drop_out_list) + 16 <= len(frame_list):
+            if idx%2 == 0:
+              drop_out_list.append(fram)
+          else:
+            drop_out_list.append(fram)
+        frame_list = drop_out_list
         break
-      f_list = frame_list[0::2]
-      if len(frame_list)%2 == 0:
-        f_list = f_list + frame_list[-1]
-      frame_list = f_list
+      else:
+        f_list = frame_list[0::2]
+        if len(frame_list)%2 == 0:
+          f_list.append(frame_list[-1])
+        frame_list = f_list
     sampled_frames_list.append(frame_list)
   return sampled_frames_list
 
 
 def write_to_files(clss, sampled_frames_list, label_name, target_file):
-  input_video_file_name = "{}crop".format(label_name)
+  item, _ = label_name.split("label")
+  input_video_file_name = "{}crop".format(item)
   input_label_file = get_full_path(LABEL, label_name)
   video_file = get_full_path(VIDEO, input_video_file_name, ".mp4")
   cap = cv2.VideoCapture(video_file)
@@ -127,21 +136,21 @@ def write_to_files(clss, sampled_frames_list, label_name, target_file):
     ret, frame = cap.read()
     for event_num, sample_frames in enumerate(sampled_frames_list):
       if fidx in sample_frames:
-        base_path = get_full_path("{}/{}/{}".format(OUTPUT, clss, label_name), event_num)
+        base_path = get_full_path("{}/{}/{}".format(OUTPUT, clss, item), event_num)
         try:
           os.makedirs(base_path)
         except Exception:
           pass
-        file_name = "{}_{}".format(dict_key, fidx)
+        file_name = "{}_{}".format(input_video_file_name, fidx)
         file_path = "{}/{}".format(base_path, file_name)
-        resize = cv2.resize(frame, (320, 240), interpolation = cv2.INTER_LINEAR)
-        cv2.imwrite("{}.jpg".format(base_path), resize)
+        resize = cv2.resize(frame, (160, 120), interpolation = cv2.INTER_LINEAR)
+        cv2.imwrite("{}.jpg".format(file_path), resize)
         list_file[base_path] = clss
     fidx += 1
     if not ret:
       break
-    for key, val in list_file.iteritems():
-      target_file.write("{} {}\n".format(key, val))
+  for key, val in list_file.iteritems():
+    target_file.write("{} {}\n".format(key, val))
   cap.release()
 
 
