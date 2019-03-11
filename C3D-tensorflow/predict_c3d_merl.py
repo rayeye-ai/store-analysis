@@ -29,7 +29,7 @@ import numpy as np
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
-cpu_num = 2
+cpu_num = 3
 flags.DEFINE_integer('batch_size', 10 , 'Batch size.')
 FLAGS = flags.FLAGS
 
@@ -56,8 +56,8 @@ def placeholder_inputs(batch_size):
 
 def _variable_on_cpu(name, shape, initializer):
   #with tf.device('/cpu:%d' % cpu_id):
-  with tf.device('/cpu:0'):
-    var = tf.get_variable(name, shape, initializer=initializer)
+  #with tf.device('/cpu:0'):
+  var = tf.get_variable(name, shape, initializer=initializer)
   return var
 
 def _variable_with_weight_decay(name, shape, stddev, wd):
@@ -104,9 +104,9 @@ def run_test():
             }
   logits = []
   for cpu_index in range(0, cpu_num):
-    with tf.device('/cpu:%d' % cpu_index):
-      logit = c3d_model.inference_c3d(images_placeholder[cpu_index * FLAGS.batch_size:(cpu_index + 1) * FLAGS.batch_size,:,:,:,:], 0.6, FLAGS.batch_size, weights, biases)
-      logits.append(logit)
+    #with tf.device('/cpu:%d' % cpu_index):
+    logit = c3d_model.inference_c3d(images_placeholder[cpu_index * FLAGS.batch_size:(cpu_index + 1) * FLAGS.batch_size,:,:,:,:], 0.6, FLAGS.batch_size, weights, biases)
+    logits.append(logit)
   logits = tf.concat(logits,0)
   norm_score = tf.nn.softmax(logits)
   saver = tf.train.Saver()

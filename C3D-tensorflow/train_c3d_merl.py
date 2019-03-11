@@ -27,7 +27,7 @@ import numpy as np
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
-cpu_num = 2
+cpu_num = 3
 #flags.DEFINE_float('learning_rate', 0.0, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 5000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 10, 'Batch size.')
@@ -95,8 +95,8 @@ def tower_acc(logit, labels):
   return accuracy
 
 def _variable_on_cpu(name, shape, initializer):
-  with tf.device('/cpu:0'):
-    var = tf.get_variable(name, shape, initializer=initializer)
+  #with tf.device('/cpu:0'):
+  var = tf.get_variable(name, shape, initializer=initializer)
   return var
 
 def _variable_with_weight_decay(name, shape, wd):
@@ -159,7 +159,7 @@ def run_training():
               'out': _variable_with_weight_decay('bout', [c3d_model.NUM_CLASSES], 0.000),
               }
     for cpu_index in range(0, cpu_num):
-      with tf.device('/cpu:%d' % cpu_index):
+        #with tf.device('/cpu:%d' % cpu_index):
         
         varlist2 = [ weights['out'],biases['out'] ]
         varlist1 = list( set(weights.values() + biases.values()) - set(varlist2) )
