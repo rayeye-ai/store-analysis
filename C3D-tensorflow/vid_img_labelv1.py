@@ -96,7 +96,7 @@ def getstartstop(input_video_file_name, input_label_file_name, list_file):
 
                         if action[0] <= fidx <= action[1]:
                             dict_key = "{}_{}_{}".format(clss, input_video_file_name, action_item_no)
-			    pict_key = dict_key
+                            pict_key = dict_key
                             event_len = action[1] - action[0]
                             base_path = get_full_path("{}/{}/{}".format(OUTPUT, clss, input_video_file_name), action_item_no)
                             if clss in [3,4]:
@@ -113,7 +113,7 @@ def getstartstop(input_video_file_name, input_label_file_name, list_file):
                                 os.makedirs(base_path)
                             except Exception:
                                 pass
-			    dict_key = pict_key
+                            dict_key = pict_key
                             event_len_dict[dict_key] = event_len_dict.get(dict_key, event_len) # waste of compute
                             if event_len > 16:
                                 event_log_val_dict[dict_key] = event_log_val_dict.get(dict_key, int(math.floor(math.log(event_len/16, 2)))) # waste of compute
