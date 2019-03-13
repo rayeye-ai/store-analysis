@@ -33,6 +33,8 @@ cpu_num = 4
 flags.DEFINE_integer('batch_size', 10 , 'Batch size.')
 FLAGS = flags.FLAGS
 
+START_POS_FILENAME = 'start_pos.txt'
+
 def placeholder_inputs(batch_size):
   """Generate placeholder variables to represent the input tensors.
   These placeholders are used as inputs by the rest of the model building
@@ -66,6 +68,15 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
     weight_decay = tf.nn.l2_loss(var) * wd
     tf.add_to_collection('losses', weight_decay)
   return var
+
+def get_start_position():
+    with open(START_POS_FILENAME, 'r') as start_pos_file:
+        start_pos = start_pos_file.readline()
+        return int(start_pos)
+
+def set_start_position(start_pos):
+    with open(START_POS_FILENAME, 'w') as start_pos_file:
+        start_pos_file.write(start_pos)
 
 def run_test():
   model_name = "models/c3d_ucf_model-4999"
@@ -119,6 +130,7 @@ def run_test():
   bufsize = 0
   write_file = open("predict_ret.txt", "w+", bufsize)
   next_start_pos = 0
+  next_start_pos = get_start_position()
   all_steps = int((num_test_videos - 1) / (FLAGS.batch_size * cpu_num) + 1)
   for step in xrange(all_steps):
     # Fill a feed dictionary with the actual set of images and labels
@@ -130,6 +142,7 @@ def run_test():
                     FLAGS.batch_size * cpu_num,
                     start_pos=next_start_pos
                     )
+    set_start_position(next_start_pos)
     predict_score = norm_score.eval(
             session=sess,
             feed_dict={images_placeholder: test_images}
