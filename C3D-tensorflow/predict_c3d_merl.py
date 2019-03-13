@@ -70,9 +70,13 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
   return var
 
 def get_start_position():
-    with open(START_POS_FILENAME, 'r') as start_pos_file:
-        start_pos = start_pos_file.readline()
-        return int(start_pos)
+    try:
+        with open(START_POS_FILENAME, 'r') as start_pos_file:
+            start_pos = start_pos_file.readline()
+            return int(start_pos)
+    except IOError:
+        print("No start position file exists. Starting new run")
+        return 0
 
 def set_start_position(start_pos):
     with open(START_POS_FILENAME, 'w') as start_pos_file:
@@ -129,7 +133,7 @@ def run_test():
   # And then after everything is built, start the training loop.
   bufsize = 0
   write_file = open("predict_ret.txt", "w+", bufsize)
-  next_start_pos = 0
+  #next_start_pos = 0
   next_start_pos = get_start_position()
   all_steps = int((num_test_videos - 1) / (FLAGS.batch_size * cpu_num) + 1)
   for step in xrange(all_steps):
