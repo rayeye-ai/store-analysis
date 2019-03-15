@@ -46,6 +46,7 @@ def extract_files():
                     src = os.path.join(train_or_test, classname, filename)
                     dest = os.path.join(train_or_test, classname,
                         filename_no_ext + '-%04d.jpg')
+                    print "src: {}, dest: {}".format(src, dest)
                     call(["ffmpeg", "-i", src, dest])
 
                 # Now get how many frames it is.
