@@ -34,14 +34,14 @@ def getstorage(label_name):
   for clss, data in enumerate(matlab_data['tlabs']):
 
     for action_list in data:
-        start_end_dict = {}
+        #start_end_dict = {}
         for idx, action in enumerate(action_list):
             if not os.path.exists(BASE + '/splits/' + str(clss)):
                 os.makedirs(BASE + '/splits/' + str(clss))
-            start_end_dict[action[0]] = action[1]
+            metadata_dict[action[0]] = [action[1], clss]
 
 
-    metadata_dict[clss] = start_end_dict
+    #metadata_dict[clss] = start_end_dict
   resize_by_start_end_frame(cap, metadata_dict, input_video_file_name)
   cap.release()
 
@@ -51,7 +51,8 @@ def resize_by_start_end_frame(cap, metadata_dict, target_video_file):
 
     frame_count = 0
     frame_dict = {}   # format = {class: split_number: [frames]}
-    split_count = 0
+    # split_count = 0
+    split_count_dict = {}
     end = 0
     global size
     while True:
@@ -61,28 +62,28 @@ def resize_by_start_end_frame(cap, metadata_dict, target_video_file):
         if None in frame:
             break
 
-        for clss in metadata_dict:
+        # Print frame
+        # start_end_dict = metadata_dict[clss]
+        print "frame count %s" % (frame_count)
+        print "split count %s" % (split_count_dict)
 
-            # Print frame
-            start_end_dict = metadata_dict[clss]
-            print "frame count %s" % (frame_count)
-            print "split count %s" % (split_count)
+        if frame_count in metadata_dict:
+            end, clss = metadata_dict[frame_count]
+            split_count_dict[clss] = 0
+            frame_dict[clss] = {}
+            split_count_dict[clss] += 1
+            frame_dict[clss][split_count_dict[clss]] = []
 
-            if frame_count in start_end_dict:
-                split_count += 1
-                frame_dict[clss][split_count] = []
-                end = start_end_dict[frame_count]
+        if frame_count < end:
+            frame_dict[clss][split_count_dict[clss]].append(frame)
 
-            if frame_count < end:
-                frame_dict[clss][split_count].append(frame)
-
-            frame_count += 1
+        frame_count += 1
 
 #	if frame_count > 700:
 #	    break
 
 
-    if split_count == 0:
+    if split_count_dict[clss] == 0:
         return
 
     height, width, layers = frame_dict[0][1][0].shape
