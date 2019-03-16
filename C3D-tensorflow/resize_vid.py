@@ -42,12 +42,12 @@ def getstorage(label_name):
 
 
     metadata_dict[clss] = start_end_dict
-  resize_by_start_end_frame(cap, metadata_dict, start_end_dict, input_video_file_name)
+  resize_by_start_end_frame(cap, metadata_dict, input_video_file_name)
   cap.release()
 
 
 size = 0
-def resize_by_start_end_frame(cap, metadata_dict, start_end_dict, target_video_file):
+def resize_by_start_end_frame(cap, metadata_dict, target_video_file):
 
     frame_count = 0
     frame_dict = {}   # format = {class: split_number: [frames]}
