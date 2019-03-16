@@ -5,8 +5,8 @@ BASE = "."
 def main():
     for x in xrange(5):
 	count = 0
-        with open("list/" + "test.txt", "a") as test_file:
-            with open("list/" + "train.txt", "a") as train_file:
+        with open("list/" + "test01.txt", "a") as test_file:
+            with open("list/" + "train01.txt", "a") as train_file:
         	for filename in os.listdir(BASE + "/" + str(x) + "/"):
 	    
 	    	    print filename
