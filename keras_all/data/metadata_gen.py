@@ -1,6 +1,6 @@
 import os
 
-BASE = "."
+BASE = "splits"
 
 def main():
     for x in xrange(5):
